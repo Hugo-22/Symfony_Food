@@ -39,8 +39,10 @@ class AdminAlimentController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
 
+            $modif = $aliment->getId() !== null;
             $objectManager->persist($aliment);
             $objectManager->flush();
+            $this->addFlash("success", ($modif) ?  "La modification a été effectuée" : "L'ajout a été effectuée" );
             return $this->redirectToRoute("admin_aliment");
 
         }
@@ -60,6 +62,7 @@ class AdminAlimentController extends AbstractController
 
             $objectManager->remove($aliment);
             $objectManager->flush();
+            $this->addFlash("success", "La suppresion a été effectuée");
             return $this->redirectToRoute("admin_aliment");
         }
     }
