@@ -24,10 +24,15 @@ class AdminAlimentController extends AbstractController
     }
 
     /**
-     * @Route("/admin/aliment/{id}", name="admin_aliment_modification")
+     * @Route("/admin/aliment/creation", name="admin_aliment_creation")
+     * @Route("/admin/aliment/{id}", name="admin_aliment_modification", methods="GET|POST")
      */
-    public function modification(Aliment $aliment, HttpFoundationRequest $request, EntityManagerInterface $objectManager)
+    public function ajoutEtModif(Aliment $aliment = null, HttpFoundationRequest $request, EntityManagerInterface $objectManager)
     {
+        if(!$aliment) {
+            $aliment = new Aliment;
+        }
+
         $form = $this->createForm(AlimentType::class, $aliment);
 
         $form->handleRequest($request);
@@ -39,9 +44,23 @@ class AdminAlimentController extends AbstractController
             return $this->redirectToRoute("admin_aliment");
 
         }
-        return $this->render('admin/admin_aliment/modificationAliment.html.twig', [
+        return $this->render('admin/admin_aliment/ModifEtAjoutAliment.html.twig', [
             "aliment" => $aliment,
-            "form" => $form->createView()
+            "form" => $form->createView(),
+            "isModification" => $aliment->getId() !== null
         ]);
+    }
+
+      /**
+     * @Route("/admin/aliment/{id}", name="admin_aliment_suppresion", methods="delete")
+     */
+    public function suppresion(Aliment $aliment, HttpFoundationRequest $request, EntityManagerInterface $objectManager) 
+    {
+        if($this->isCsrfTokenValid("SUP". $aliment->getId(), $request->get('_token'))) {
+
+            $objectManager->remove($aliment);
+            $objectManager->flush();
+            return $this->redirectToRoute("admin_aliment");
+        }
     }
 }
